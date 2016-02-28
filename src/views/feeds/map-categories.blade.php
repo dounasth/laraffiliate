@@ -7,7 +7,9 @@ Map Feed Categories
 @section('page-subtitle')
     @if ($feed->id)
         of feed <a href="{{route('feed.update', [$feed->id])}}">{{ $feed->name }} ({{ $feed->id }})</a>
+        @if ($feed->merchant)
         for merchant <a href="{{route('merchant.update', [$feed->merchant->id])}}">{{ $feed->merchant->name }} ({{ $feed->merchant->id }})</a>
+        @endif
     @endif
 @stop
 
@@ -23,6 +25,7 @@ Map Feed Categories
 <!-- DATA TABLES -->
 <link href="{{ Config::get('laradmin::general.asset_path') }}/css/datatables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="{{ Config::get('laradmin::general.asset_path') }}/css/bootstrap-tags/bootstrap-tagsinput.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="{{ Config::get('laradmin::general.asset_path') }}/css/jquery.nestable.css" type="text/css"/>
 <style type="text/css">
     #example1 .bootstrap-tagsinput {
         width: auto !important;
@@ -41,43 +44,74 @@ Map Feed Categories
 </script>
 <script src="{{ Config::get('laradmin::general.asset_path') }}/js/bootstrap-tags/bootstrap-tagsinput.js" type="text/javascript"></script>
 <script src="{{ Config::get('laradmin::general.asset_path') }}/js/typeahead.bundle.js" type="text/javascript"></script>
+<script type="text/javascript" src="{{ Config::get('laradmin::general.asset_path') }}/js/jquery.nestable.js"></script>
 <script type="text/javascript" charset="utf-8">
-    var categories = new Bloodhound({
-        name: 'categories',
-        datumTokenizer: function(d) {
-            return Bloodhound.tokenizers.whitespace(d.name);
-        },
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        prefetch: '/json/categories'
-    });
-    categories.initialize();
 
-    var elms = $('.categories');
-    elms.tagsinput({
-        maxTags: 1,
-        freeInput: false,
-        itemValue: 'id',
-        itemText: 'name',
-        typeaheadjs: {
-            highlight: true,
-            limit: 20,
+    function reloadCategories() {
+        jQuery('.categories').tagsinput('destroy');
+        return loadCategories();
+    }
+
+    function loadCategories() {
+        var categories = new Bloodhound({
             name: 'categories',
-            displayKey: 'name',
-            source: categories.ttAdapter()
-        }
-    });
-    elms.each(function(i, elm){
-        var id = $(elm).attr('data-selected-id');
-        if (id > 0) {
-            var name = $(elm).attr('data-selected-name');
-            $(elm).tagsinput('add', { "id": id , "name": name });
-        }
-    });
-    elms.on('itemAdded', function(event) {
-        // event.item: contains the item
-        var url = "{{ route('aff.feed.map-feed-cat', ['XX', 'YY']) }}";
+            datumTokenizer: function(d) {
+                return Bloodhound.tokenizers.whitespace(d.name);
+            },
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: {
+                url: '/json/final-categories',
+                cache: false
+            }
+        });
+        categories.initialize();
+
+        var elms = $('.categories');
+        elms.tagsinput({
+            maxTags: 1,
+            freeInput: false,
+            itemValue: 'id',
+            itemText: 'name',
+            typeaheadjs: {
+                highlight: true,
+                limit: 20,
+                name: 'categories',
+                displayKey: 'name',
+                source: categories.ttAdapter()
+            }
+        });
+        elms.each(function(i, elm){
+            var id = $(elm).attr('data-selected-id');
+            if (id > 0) {
+                var name = $(elm).attr('data-selected-name');
+                $(elm).tagsinput('add', { "id": id , "name": name });
+            }
+        });
+        elms.on('itemAdded', function(event) {
+            // event.item: contains the item
+            var url = "{{ route('aff.feed.map-feed-cat', ['XX', 'YY']) }}";
+            url = url.replace('XX', $(event.target).attr('data-feed-cat-id'));
+            url = url.replace('YY', event.item.id);
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {},
+                success: function(response){
+                    console.info(response);
+                },
+                dataType: 'json'
+            });
+        });
+
+        return categories;
+    }
+
+    var categories = loadCategories();
+
+    jQuery('.unmap').click(function(event){
+        event.preventDefault();
+        var url = "{{ route('aff.feed.unmap-feed-cat', ['XX']) }}";
         url = url.replace('XX', $(event.target).attr('data-feed-cat-id'));
-        url = url.replace('YY', event.item.id);
         $.ajax({
             type: "POST",
             url: url,
@@ -87,6 +121,7 @@ Map Feed Categories
             },
             dataType: 'json'
         });
+        return false;
     });
 
     $('body').on('hidden.bs.modal', '.modal', function () {
@@ -137,6 +172,7 @@ Map Feed Categories
                 <th>Name</th>
                 <th>Current Mapping</th>
                 <th>Map To</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -148,8 +184,6 @@ Map Feed Categories
                 </td>
                 <td>
                     <label for="check_{{ $ic->id }}">{{ $ic->category }}</label>
-                    <a data-toggle="modal" href="{{ route('feed.products-sample', [$feed->id, urlencode($ic->category)]) }}"
-                       data-target="#ajaxModal" class="btn btn-default btn-small">sample</a>
                 </td>
                 <td>
                     {{ ($cm) ? $cm->path() : '---' }}
@@ -161,7 +195,16 @@ Map Feed Categories
                            data-selected-id="{{ ($cm) ? $cm->id : 0 }}"
                            data-selected-name="{{ ($cm) ? $cm->path() : '' }}"
                     />
-                    <button class="btn btn-default">unmap</button>
+                    <button class="btn btn-default unmap"
+                            data-feed-cat-id="{{ $ic->id }}"
+                            data-selected-id="{{ ($cm) ? $cm->id : 0 }}"
+                        >unmap</button>
+                </td>
+                <td>
+                    <a data-toggle="modal" href="{{ route('feed.products-sample', [$feed->id, urlencode($ic->category)]) }}"
+                       data-target="#ajaxModal" class="btn btn-default btn-small">sample</a>
+                    <a data-toggle="modal" href="{{ route('feed.add-category', [$feed->id, urlencode($ic->category)]) }}"
+                       data-target="#ajaxModal" class="btn btn-default btn-small">make category</a>
                 </td>
             </tr>
             @endforeach
@@ -172,6 +215,7 @@ Map Feed Categories
                 <th>Name</th>
                 <th>Current Mapping</th>
                 <th>Map To</th>
+                <th></th>
             </tr>
             </tfoot>
         </table>

@@ -5,7 +5,13 @@ Map Feed Fields
 @stop
 
 @section('page-subtitle')
-only products belonging to mapped categories will be imported to the site
+@if ($feed->id)
+    of feed <a href="{{route('feed.update', [$feed->id])}}">{{ $feed->name }} ({{ $feed->id }})</a>
+    @if ($feed->merchant)
+    for merchant <a href="{{route('merchant.update', [$feed->merchant->id])}}">{{ $feed->merchant->name }} ({{ $feed->merchant->id }})</a>
+    @endif
+@endif
+(only products belonging to mapped categories will be imported to the site)
 @stop
 
 @section('breadcrumb')
@@ -34,6 +40,7 @@ only products belonging to mapped categories will be imported to the site
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         prefetch: {
             url: '{{ route("json.feed-fields", [$feed->id]) }}',
+            cache: false,
             filter: function(list) {
                 return $.map(list, function(cityname) {
                     return { name: cityname }; });
@@ -50,6 +57,9 @@ only products belonging to mapped categories will be imported to the site
             valueKey: 'name',
             source: tags.ttAdapter()
         }
+    });
+    $('[data-role="tagdelimiters"]').tagsinput({
+        freeInput: true
     });
 </script>
 @stop

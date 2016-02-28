@@ -31,6 +31,11 @@ class Feed extends Eloquent {
 		return $this->belongsTo('Merchant', 'merchant_id', 'id');
 	}
 
+    public function importCategories()
+    {
+        return $this->hasMany('ImportCategories', 'feed_id', 'id');
+    }
+
 	public function map()
 	{
 		return $this->hasMany('FeedMap', 'feed_id', 'id');
@@ -76,6 +81,11 @@ class Feed extends Eloquent {
             }
         }
         return $fields;
+    }
+
+    public function scopeEnabled($query)
+    {
+        return $query->whereStatus('A');
     }
 
 }

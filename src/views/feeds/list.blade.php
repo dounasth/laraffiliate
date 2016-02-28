@@ -18,6 +18,7 @@ dashboard subtitle, some description must be here
 <li role="presentation" class="divider"></li>
 <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-trash-o"></i> Delete selected feeds</a></li>
 <li role="presentation" class="divider"></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="{{ route('feed.list') }}"><i class="fa fa-trash-o"></i> Not Trashed</a></li>
 <li role="presentation"><a role="menuitem" tabindex="-1" href="{{ route('feed.trashed') }}"><i class="fa fa-trash-o"></i> Trashed</a></li>
 @stop
 
@@ -52,12 +53,12 @@ dashboard subtitle, some description must be here
             <tbody>
             @foreach ($feeds as $feed)
             <tr>
+                <td>{{ $feed->id }}</td>
                 <td>
-                    <input type="checkbox" value="{{ $feed->id }}">{{ $feed->id }}
-                </td>
-                <td>
-                    <a href="{{route('feed.update', [$feed->id])}}">{{ $feed->name }} </a> for
-                    <a href="{{route('merchant.update', [$feed->merchant->id])}}">{{ $feed->merchant->name }} ({{ $feed->merchant->id }})</a>
+                    <a href="{{route('feed.update', [$feed->id])}}">{{ $feed->name }} </a>
+                    @if ($feed->merchant)
+                    for <a href="{{route('merchant.update', [$feed->merchant->id])}}">{{ $feed->merchant->name }} ({{ $feed->merchant->id }})</a>
+                    @endif
                 </td>
                 <td><a href="{{ $feed->feed_url }}" title="{{ $feed->feed_url }}" target="_blank">{{ Str::limit($feed->feed_url, 100) }}</a></td>
                 <td>

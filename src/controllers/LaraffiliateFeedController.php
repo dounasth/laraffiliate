@@ -72,13 +72,15 @@ class LaraffiliateFeedController extends \LaradminBaseController
     }
 
     public function gatherProductsSample($row){
-        if ($this->tmpStorage['counter'] <= 10 ) {
+        global $MagicParser_xml_done;
+        if ($this->tmpStorage['counter'] < 12 ) {
             $cfield = $this->current_feed->category_field;
-            if ($row[$cfield] == $this->tmpStorage['category']) {
+            if (isset($row[$cfield]) && $row[$cfield] == $this->tmpStorage['category']) {
                 $this->tmpStorage['sample'][] = $row;
                 $this->tmpStorage['counter'] += 1;
             }
         }
+        else $MagicParser_xml_done = true;
         return;
     }
 
@@ -157,6 +159,24 @@ class LaraffiliateFeedController extends \LaradminBaseController
         return Response::json($response, 200, $headers, JSON_UNESCAPED_UNICODE);
     }
 
+    public function unmapFeedCat($feed_cat_id){
+        $response = array();
+        $response['status'] = false;
+
+        $ic = ImportCategories::find($feed_cat_id);
+        if ($ic) {
+            $ic->mapto_category_id = 0;
+            $ic->save();
+            $response['status'] = true;
+        }
+
+        $headers = array(
+            'Content-type'=> 'application/json; charset=utf-8',
+//            'Cache-Control' => 'max-age='.Config::get('api::general.jsonCacheControl'),
+        );
+        return Response::json($response, 200, $headers, JSON_UNESCAPED_UNICODE);
+    }
+
     public function mapFields($feed_id){
         $feed = Feed::findOrFail($feed_id);
         return View::make('laraffiliate::feeds.map-fields')->withFeed($feed);
@@ -205,6 +225,55 @@ class LaraffiliateFeedController extends \LaradminBaseController
         }
     }
 
+    public function addCategory($feed_id, $feed_category) {
+        $feed_category = urldecode($feed_category);
+        $feed = Feed::findOrFail($feed_id);
+        $categoryModelClass = new $feed->target_category_model;
+        $categories = $categoryModelClass->sorted()->get()->toTree();
+        return View::make('laraffiliate::feeds.make-category', compact('feed', 'feed_category', 'categories'));
+        exit;
+    }
+
+    public function savePositionedCategory() {
+        $feedid = Input::get('feedid', '');
+        $feed = Feed::findOrFail($feedid);
+        $category = new $feed->target_category_model;
+
+        $name = Input::get('name', '');
+        $seoname = Input::get('seoname', '');
+        $pos = Input::get('pos', '');
+
+        $sibling = Input::get('sibling', '');
+        $neighbor = new $feed->target_category_model;
+        $neighbor = $neighbor->findOrFail($sibling);
+
+        $parent = Input::get('parent', '');
+
+        $category->parent_id = $parent;
+        $category->title = $name;
+        $category->save();
+        $seo = ['title' => $seoname];
+        if ($category->seo) {
+            $category->seo->fill($seo)->save();
+        }
+        else {
+            $seo = \Bonweb\Laradmin\Seo::create($seo);
+            $category->seo()->save($seo);
+        }
+
+        if ($neighbor) {
+            if ($pos == 'before') {
+                $category->before($neighbor)->save();
+            }
+            elseif ($pos == 'after') {
+                $category->after($neighbor)->save();
+            }
+        }
+
+        return Response::json($category->toArray());
+//        return View::make('laraffiliate::feeds.make-category', compact('feed_category', 'categories'));
+        exit;
+    }
 }
 
 ?>

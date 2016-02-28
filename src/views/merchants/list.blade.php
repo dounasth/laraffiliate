@@ -18,6 +18,7 @@ dashboard subtitle, some description must be here
 <li role="presentation" class="divider"></li>
 <li role="presentation"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-trash-o"></i> Delete selected merchants</a></li>
 <li role="presentation" class="divider"></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="{{ route('merchant.list') }}"><i class="fa fa-trash-o"></i> Not Trashed</a></li>
 <li role="presentation"><a role="menuitem" tabindex="-1" href="{{ route('merchant.trashed') }}"><i class="fa fa-trash-o"></i> Trashed</a></li>
 @stop
 
@@ -53,11 +54,14 @@ dashboard subtitle, some description must be here
             @foreach ($merchants as $merchant)
             <tr>
                 <td>
-                    <input type="checkbox" value="{{ $merchant->slug }}">{{ $merchant->id }}
+                    {{ $merchant->id }}
                 </td>
                 <td><a href="{{route('merchant.update', [$merchant->id])}}">{{ $merchant->name }}</a></td>
                 <td><a href="{{route('merchant.update', [$merchant->id])}}">{{ $merchant->slug }}</a></td>
                 <td>
+                    @if ($merchant->trashed())
+                    <a class="btn btn-flat btn-info" href="{{route('merchant.restore', [$merchant->id])}}"><i class="fa fa-refresh"></i> {{trans('laradmin::actions.restore')}}</a>
+                    @endif
                     <a class="btn btn-flat btn-info" href="{{route('merchant.update', [$merchant->id])}}"><i class="fa fa-edit"></i> {{trans('laradmin::actions.edit')}}</a>
                     <a class="btn btn-flat btn-danger" href="{{route('merchant.delete', [$merchant->id])}}"><i class="fa fa-edit"></i> {{trans('laradmin::actions.delete')}}</a>
                 </td>

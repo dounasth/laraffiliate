@@ -45,6 +45,13 @@ class LaraffiliateMerchantController extends \LaradminBaseController
         }
     }
 
+    public function restoreTrashed($id) {
+        $o = Merchant::withTrashed()->where('id','=',$id)->first();
+        $o->restore();
+        $message = AlertMessage::success("Merchant {$o->name} ({$o->id}) restored");
+        return Redirect::back()->withMessage( $message );
+    }
+
 }
 
 ?>

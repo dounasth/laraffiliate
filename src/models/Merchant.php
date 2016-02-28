@@ -32,7 +32,9 @@ class Merchant extends \Illuminate\Database\Eloquent\Model implements SluggableI
 
     public function save(array $options = array())
     {
-        $this->sluggify(true);
+        if ($this->needsSlugging()) {
+            $this->sluggify(true);
+        }
         return parent::save($options);
     }
 
@@ -41,9 +43,41 @@ class Merchant extends \Illuminate\Database\Eloquent\Model implements SluggableI
 		return $this->hasMany('Feed', 'merchant_id');
 	}
 
-    public function network()
+    public function importedProducts() {
+        return $this->hasMany('ImportProducts', 'merchant_id', 'id');
+    }
+
+    public function delete() {
+        if ($this->forceDeleting) {
+            $merchant = Merchant::withTrashed()->where('id','=',11)->first();
+            foreach ($merchant->feeds as $feed) {
+                foreach ($feed->importCategories as $impCats) {
+                    $impCats->delete();
+                }
+                foreach ($feed->map as $feedMap) {
+                    $feedMap->delete();
+                }
+                $feed->forceDelete();
+            }
+            foreach ($merchant->importedProducts as $impProd) {
+                $impProd->product->forceDelete();
+                $impProd->delete();
+            }
+        }
+        else {
+
+        }
+        parent::delete();
+    }
+
+    public function scopeEnabled($query)
+    {
+        return $query->whereStatus('A');
+    }
+
+    /*public function network()
     {
         return $this->belongsTo('AffiliateNetwork');
-    }
+    }*/
 
 }

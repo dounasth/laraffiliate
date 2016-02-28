@@ -7,7 +7,9 @@
 @section('page-subtitle')
     @if ($feed->id)
         {{ $feed->name }} ({{ $feed->id }})
+        @if ($feed->merchant)
         for <a href="{{route('merchant.update', [$feed->merchant->id])}}">{{ $feed->merchant->name }} ({{ $feed->merchant->id }})</a>
+        @endif
     @endif
 @stop
 
@@ -53,19 +55,6 @@
                 <div class="form-group">
                     {{ Form::label('status', 'Status:') }}
                     {{ Form::select('feed[status]', array('A' => 'Active', 'D' => 'Disabled'), $feed->status, array('class' => 'form-control')) }}
-                </div>
-                <h2>Info</h2>
-                <div class="form-group">
-                    {{ Form::label('is_downloaded', 'Is_downloaded:') }}
-                    {{ Form::text('feed[is_downloaded]', $feed->is_downloaded, array('class' => 'form-control')) }}
-                </div>
-                <div class="form-group">
-                    {{ Form::label('is_parsed', 'Is_parsed:') }}
-                    {{ Form::text('feed[is_parsed]', $feed->is_parsed, array('class' => 'form-control')) }}
-                </div>
-                <div class="form-group">
-                    {{ Form::label('is_imported', 'Is_imported:') }}
-                    {{ Form::text('feed[is_imported]', $feed->is_imported, array('class' => 'form-control')) }}
                 </div>
 
                 <h2>Timestamps</h2>

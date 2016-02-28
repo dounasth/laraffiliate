@@ -1,6 +1,11 @@
 <?php
 
 return array(
+    'cache' => array(
+        // minutes
+        'offers' => 60,
+    ),
+    'subID' => '',
     'path' => dirname(__FILE__).'/..',
     'import_db' =>
 //    array(

@@ -1,5 +1,7 @@
 <?php namespace Bonweb\Laraffiliate;
 
+use Bonweb\Laraffiliate\Commands\CronParseProducts;
+use Illuminate\Foundation\Artisan;
 use Illuminate\Support\ServiceProvider;
 
 class LaraffiliateServiceProvider extends ServiceProvider {
@@ -19,10 +21,10 @@ class LaraffiliateServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('bonweb/laraffiliate');
-        include __DIR__ . '/../../util/helpers.php';
-        include __DIR__.'/../../events.php';
-        include __DIR__.'/../../filters.php';
-        include __DIR__.'/../../routes.php';
+        include_once __DIR__ . '/../../util/helpers.php';
+        include_once __DIR__.'/../../events.php';
+        include_once __DIR__.'/../../filters.php';
+        include_once __DIR__.'/../../routes.php';
         $this->setConnection();
 	}
 
@@ -33,7 +35,14 @@ class LaraffiliateServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		//
+//        \Artisan::add(new CronParseProducts());
+        $this->app['command.cron.parse-products'] = $this->app->share(
+            function ($app) {
+                return new CronParseProducts();
+            }
+        );
+
+        $this->commands('command.cron.parse-products');
 	}
 
 	/**

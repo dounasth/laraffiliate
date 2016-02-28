@@ -18,4 +18,17 @@ class ImportProducts extends \Illuminate\Database\Eloquent\Model {
     {
         $this->attributes['row'] = serialize($value);
     }
+
+    public function merchant() {
+        return $this->hasOne('Merchant', 'id', 'merchant_id');
+    }
+
+    public function feed() {
+        return $this->hasOne('Feed', 'id', 'feed_id');
+    }
+
+    public function product() {
+        return $this->hasOne('Bonweb\Laracart\Product', 'id', 'product_id');
+    }
+
 }

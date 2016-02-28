@@ -1,4 +1,3 @@
-
 <div class="row">
     <div class="col-lg-9 col-sm-12">
 
@@ -34,6 +33,20 @@
             {{ Form::label('seo-keywords-from', 'Make Product SEO Title from (in this sequence):') }}
             {{ Form::text('config[seo-keywords-from]', $feed_map['seo-keywords-from'],
             array('class' => 'form-control', 'data-role' => 'tagsinput')
+            ) }}
+        </div>
+
+        <div class="form-group">
+            {{ Form::label('tag-from', 'Tag product from these fields:') }}
+            {{ Form::text('config[tag-from]', $feed_map['tag-from'],
+            array('class' => 'form-control', 'data-role' => 'tagsinput')
+            ) }}
+        </div>
+
+        <div class="form-group">
+            {{ Form::label('tag-delimiters', 'Explode Tags with these characters:') }}
+            {{ Form::text('config[tag-delimiters]', $feed_map['tag-delimiters'],
+            array('class' => 'form-control', 'data-role' => 'tagdelimiters')
             ) }}
         </div>
 

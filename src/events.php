@@ -12,29 +12,40 @@ Event::listen('admin.top-left-menu', function(){
         'href' => route('feed.list'),
         'icon' => 'fa-list-ul',
     );
-    $menu['dividerlc1'] = 'divider';
+    $menu['dividerl1'] = 'divider';
+
     $menu['formats'] = array(
         'label' => 'Feed Formats',
         'href' => route('feed_format.list'),
         'icon' => 'fa-list-ul',
     );
-    $menu['dividerlc1'] = 'divider';
-    $menu['settings'] = array(
-        'label' => 'Settings',
+    $menu['dividerl3'] = 'divider';
+    $menu['utilities'] = array(
+        'label' => 'Utilities',
         'href' => '#',
         'icon' => 'fa-cogs',
         'submenu' => array(
             array(
-                'label' => '!@#',
-                'href' => '#',
+                'label' => 'Linkwise Merchants list',
+                'href' => route('utilities.linkwise.merchants'),
                 'icon' => 'fa-list-ul',
             ),
             array(
-                'label' => '$%^',
-                'href' => '#',
+                'label' => 'Skroutz Categories',
+                'href' => route('utilities.skroutz-categories'),
+                'icon' => 'fa-list-ul',
+            ),
+            array(
+                'label' => 'Google Categories',
+                'href' => route('utilities.google-categories'),
                 'icon' => 'fa-list-ul',
             ),
         )
+    );
+    $menu['settings'] = array(
+        'label' => 'Settings',
+        'href' => '#',
+        'icon' => 'fa-cogs',
     );
     return array(
         'affiliate-marketing' => array(
@@ -63,3 +74,14 @@ Event::listen('laraffiliate.target-models', function(){
     }
     return true;
 });
+
+Event::listen('admin.dashboard.widgets', function() {
+    if ( Route::getCurrentRoute()->getPrefix() == 'admin' ) {
+        $widget = new ViewWidget('cron-product-parser-stats', Widget::TYPE_VIEW);
+        $widget->view = 'laraffiliate::widgets.cron-product-parser-stats';
+        $widget->wrapClass = 'col-lg-6 col-xs-12 col-md-12';
+        $widget->data = array();
+        return $widget;
+    }
+    else return [];
+}, 1000000);
