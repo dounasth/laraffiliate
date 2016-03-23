@@ -231,7 +231,6 @@ class LaraffiliateFeedController extends \LaradminBaseController
         $categoryModelClass = new $feed->target_category_model;
         $categories = $categoryModelClass->sorted()->get()->toTree();
         return View::make('laraffiliate::feeds.make-category', compact('feed', 'feed_category', 'categories'));
-        exit;
     }
 
     public function savePositionedCategory() {
@@ -251,6 +250,7 @@ class LaraffiliateFeedController extends \LaradminBaseController
 
         $category->parent_id = $parent;
         $category->title = $name;
+        $category->status = 'A';
         $category->save();
         $seo = ['title' => $seoname];
         if ($category->seo) {

@@ -6,7 +6,10 @@
         </div>
         <div class="modal-body">
             @foreach ($sample as $row)
-                <img src="{{$row['IMAGE_URL']}}" style="max-height: 200px; max-width: 32%; display: inline-block;"/>
+                <div style="max-height: 270px; max-width: 32%; display: inline-block;">
+                    <p>{{ $row['PRODUCT_NAME'] }}</p>
+                    <img src="{{$row['IMAGE_URL']}}" style="max-height: 100%; max-width: 100%;"/>
+                </div>
             @endforeach
         </div>
         <div class="modal-footer">

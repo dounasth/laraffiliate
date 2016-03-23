@@ -82,7 +82,7 @@
         </div>
 
         <div class="row featuredPostContainer style2">
-            <h3 class="section-title style2 text-center"><span>Παπουτσια απο το {{$offer->program_name}}</span></h3>
+            <h3 class="section-title style2 text-center"><span>Προϊόντα απο το {{$offer->program_name}}</span></h3>
             <div id="productslider" class="owl-carousel owl-theme">
                 @foreach ($products as $product)
                 <div class="item">

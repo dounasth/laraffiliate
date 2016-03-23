@@ -105,9 +105,9 @@ class LinkwiseToLaracartProductParser {
 
                 if (!$imp) {
                     $imp = new \ImportProducts();
-                    $imp->merchant_id = $this->feed->merchant->id;
-                    $imp->feed_id = $this->feed->id;
                 }
+                $imp->merchant_id = $this->feed->merchant->id;
+                $imp->feed_id = $this->feed->id;
                 $imp->product_id = $product->id;
                 $imp->row = $row;
                 $imp->save();
